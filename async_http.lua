@@ -1,3 +1,11 @@
+-- async_http
+-- Copyright 2010 by Niels Vanspauwen (niels.vanspauwen@gmail.com)
+-- @version 1.0
+-- @license BSD
+--
+-- Get the latest at: https://github.com/nielsvanspauwen/corona-async-http
+
+
 local M = {} -- module
 
 local dec2hex = {
