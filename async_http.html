@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>list test</title>
+<meta name="viewport" content="width=300; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+<style type="text/css">
+* {margin:0;padding:0;}
+body {
+margin:0;
+padding:0;
+background-color:#ffffff;
+/* make the background the same color as the app background to hide the webpopup background */
+/*background-color:#000000;*/
+width:300px;
+height:300px;
+}
+</style>
+<script type="text/javascript" charset="utf-8">
+/* Simple AJAX Code-Kit (SACK) v1.6.1 */
+/* ©2005 Gregory Wild-Smith */
+/* www.twilightuniverse.com */
+/* Software licenced under a modified X11 licence,
+   see documentation or authors website for more details */
+
+function sack(file) {
+	this.xmlhttp = null;
+
+	this.resetData = function() {
+		this.method = "POST";
+  		this.queryStringSeparator = "?";
+		this.argumentSeparator = "&";
+		this.URLString = "";
+		this.encodeURIString = true;
+  		this.execute = false;
+  		this.element = null;
+		this.elementObj = null;
+		this.requestFile = file;
+		this.vars = new Object();
+		this.responseStatus = new Array(2);
+  	};
+
+	this.resetFunctions = function() {
+  		this.onLoading = function() { };
+  		this.onLoaded = function() { };
+  		this.onInteractive = function() { };
+  		this.onCompletion = function() { };
+  		this.onError = function() { };
+		this.onFail = function() { };
+	};
+
+	this.reset = function() {
+		this.resetFunctions();
+		this.resetData();
+	};
+
+	this.createAJAX = function() {
+		try {
+			this.xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e1) {
+			try {
+				this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e2) {
+				this.xmlhttp = null;
+			}
+		}
+
+		if (! this.xmlhttp) {
+			if (typeof XMLHttpRequest != "undefined") {
+				this.xmlhttp = new XMLHttpRequest();
+			} else {
+				this.failed = true;
+			}
+		}
+	};
+
+	this.setVar = function(name, value){
+		this.vars[name] = Array(value, false);
+	};
+
+	this.encVar = function(name, value, returnvars) {
+		if (true == returnvars) {
+			return Array(encodeURIComponent(name), encodeURIComponent(value));
+		} else {
+			this.vars[encodeURIComponent(name)] = Array(encodeURIComponent(value), true);
+		}
+	}
+
+	this.processURLString = function(string, encode) {
+		encoded = encodeURIComponent(this.argumentSeparator);
+		regexp = new RegExp(this.argumentSeparator + "|" + encoded);
+		varArray = string.split(regexp);
+		for (i = 0; i < varArray.length; i++){
+			urlVars = varArray[i].split("=");
+			if (true == encode){
+				this.encVar(urlVars[0], urlVars[1]);
+			} else {
+				this.setVar(urlVars[0], urlVars[1]);
+			}
+		}
+	}
+
+	this.createURLString = function(urlstring) {
+		if (this.encodeURIString && this.URLString.length) {
+			this.processURLString(this.URLString, true);
+		}
+
+		if (urlstring) {
+			if (this.URLString.length) {
+				this.URLString += this.argumentSeparator + urlstring;
+			} else {
+				this.URLString = urlstring;
+			}
+		}
+
+		// prevents caching of URLString
+		this.setVar("rndval", new Date().getTime());
+
+		urlstringtemp = new Array();
+		for (key in this.vars) {
+			if (false == this.vars[key][1] && true == this.encodeURIString) {
+				encoded = this.encVar(key, this.vars[key][0], true);
+				delete this.vars[key];
+				this.vars[encoded[0]] = Array(encoded[1], true);
+				key = encoded[0];
+			}
+
+			urlstringtemp[urlstringtemp.length] = key + "=" + this.vars[key][0];
+		}
+		if (urlstring){
+			this.URLString += this.argumentSeparator + urlstringtemp.join(this.argumentSeparator);
+		} else {
+			this.URLString += urlstringtemp.join(this.argumentSeparator);
+		}
+	}
+
+	this.runResponse = function() {
+		eval(this.response);
+	}
+
+	this.runAJAX = function(urlstring) {
+		if (this.failed) {
+			this.onFail();
+		} else {
+			this.createURLString(urlstring);
+			if (this.element) {
+				this.elementObj = document.getElementById(this.element);
+			}
+			if (this.xmlhttp) {
+				var self = this;
+				if (this.method == "GET") {
+					totalurlstring = this.requestFile + this.queryStringSeparator + this.URLString;
+					this.xmlhttp.open(this.method, totalurlstring, true);
+				} else {
+					this.xmlhttp.open(this.method, this.requestFile, true);
+					try {
+						this.xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+					} catch (e) { }
+				}
+
+				this.xmlhttp.onreadystatechange = function() {
+					switch (self.xmlhttp.readyState) {
+						case 1:
+							self.onLoading();
+							break;
+						case 2:
+							self.onLoaded();
+							break;
+						case 3:
+							self.onInteractive();
+							break;
+						case 4:
+							self.response = self.xmlhttp.responseText;
+							self.responseXML = self.xmlhttp.responseXML;
+							self.responseStatus[0] = self.xmlhttp.status;
+							self.responseStatus[1] = self.xmlhttp.statusText;
+
+							if (self.execute) {
+								self.runResponse();
+							}
+
+							if (self.elementObj) {
+								elemNodeName = self.elementObj.nodeName;
+								elemNodeName.toLowerCase();
+								if (elemNodeName == "input"
+								|| elemNodeName == "select"
+								|| elemNodeName == "option"
+								|| elemNodeName == "textarea") {
+									self.elementObj.value = self.response;
+								} else {
+									self.elementObj.innerHTML = self.response;
+								}
+							}
+							if (self.responseStatus[0] == "200") {
+								self.onCompletion();
+							} else {
+								self.onError();
+							}
+
+							self.URLString = "";
+							break;
+					}
+				};
+
+				this.xmlhttp.send(this.URLString);
+			}
+		}
+	};
+
+	this.reset();
+	this.createAJAX();
+}
+
+
+// Hex decoding & encoding routines written by Niels Vanspauwen.
+// See COPYING for license.
+var dec2hex = [
+  '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0A', '0B', '0C', '0D', '0E', '0F',
+  '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '1A', '1B', '1C', '1D', '1E', '1F',
+  '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '2A', '2B', '2C', '2D', '2E', '2F',
+  '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '3A', '3B', '3C', '3D', '3E', '3F',
+  '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '4A', '4B', '4C', '4D', '4E', '4F',
+  '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '5A', '5B', '5C', '5D', '5E', '5F',
+  '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '6A', '6B', '6C', '6D', '6E', '6F',
+  '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '7A', '7B', '7C', '7D', '7E', '7F',
+  '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '8A', '8B', '8C', '8D', '8E', '8F',
+  '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '9A', '9B', '9C', '9D', '9E', '9F',
+  'A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF',
+  'B0', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'BA', 'BB', 'BC', 'BD', 'BE', 'BF',
+  'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'CA', 'CB', 'CC', 'CD', 'CE', 'CF',
+  'D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'DA', 'DB', 'DC', 'DD', 'DE', 'DF',
+  'E0', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'EA', 'EB', 'EC', 'ED', 'EE', 'EF',
+  'F0', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'FA', 'FB', 'FC', 'FD', 'FE', 'FF'
+];
+
+
+function hexEncode(s) {
+  var res = new Array("");
+  for (var i=0; i < s.length; i++) {
+	var b = s.charCodeAt(i) & 0xff;
+    res.push(dec2hex[b]);
+  }
+  var result = res.join("");
+  return result;
+}
+
+
+function hexDecode(s) {
+  return s.replace(/../g, function(x) {
+    return String.fromCharCode(parseInt(x, 16));
+  });
+}
+
+
+// Thanks to lobo235 for this function (http://www.netlobo.com/url_query_string_javascript.html)
+function getRequestParameter(name) {
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.href);
+  if (results == null)
+    return "";
+  else
+    return results[1];
+}
+
+// Now we make the actual AJAX call.
+var ajax = new sack();
+ajax.xmlhttp.overrideMimeType('text/plain; charset=x-user-defined'); // Required to get binary data
+function whenCompleted(){
+	if (ajax.responseStatus[0] == 200) {
+		var data = hexEncode(ajax.response);
+		window.location = "/HERE_IS_THE_DATA/" + data;
+	} else {
+		// FIXME: this doesn't seem to work... If you pass in an URL that 404's, we for some reason never get here.
+		window.location = "/ERROR_FETCHING_FILE/" + ajax.responseStatus[0];
+	}
+}
+
+ajax.requestFile = hexDecode(getRequestParameter("url"));
+ajax.method = 'GET';
+ajax.onCompletion = whenCompleted;
+ajax.runAJAX();
+</script>
+</head>
+ 
+<body>
+</body>
+</html>
