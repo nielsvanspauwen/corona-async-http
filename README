@@ -1,0 +1,62 @@
+*************************************************
+* async_http: an async http hack for Corona SDK *
+*************************************************
+
+About
+-----
+Currently (November 3, 2010), the Corona SDK only support synchronous http requests, meaning
+your app blocks while the http request is in flight. Even sound playback comes to a grinding halt.
+
+While we wait for Corona to officially support async http, I have created a workaround based on
+webpopups and AJAX. 
+
+
+Usage
+-----
+Usage is as follows:
+
+		local async_http = require("async_http")
+
+		local function onCompleteCallback(requestURL, resultPath)
+		  print("URL: " .. requestURL)
+		  print("was saved to: " .. resultPath)
+		end
+
+		local function onErrorCallback(requestURL, errorMessage)
+		  print("Failed to fetch URL: " .. requestURL)
+		  print("errormessage is: " .. errorMessage)
+		end
+
+		async_http.request(url, 
+		                   absolute_path_to_destination_file, 
+						   onCompleteCallback, 
+						   onErrorCallback)
+	
+How it works
+------------			
+Under the hood, async_http.request opens an off-screen webpopup, loading the async_http.html file, 
+passing the requestURL via a parameter (hex encoded).
+
+The html file uses an AJAX call to fetch the data, hex encodes it, and opens a fake URL which contains
+the hex-encoded data. 
+
+This fake URL is then intercepted by the urlRequest handler of the webpopup,
+hex-decoded and passed on to the onCompleteCallback handler.
+
+There. That wasn't so hard now, was it? :-)
+
+
+Credits
+-------
+The html file uses the Simple AJAX Code-Kit (SACK) v1.6.1, ©2005 Gregory Wild-Smith,
+www.twilightuniverse.com, licenced under a modified X11 licence, see authors website 
+for more details.
+
+The html file also uses a function to decode URL Request parameters, written by
+"lobo235", which as far as I can tell, was released into the Public Domain. (http://www.netlobo.com/url_query_string_javascript.html)
+
+
+Contact
+-------
+Email: niels.vanspauwen@gmail.com
+Twitter: @nielsvanspauwen
