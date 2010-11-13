@@ -267,19 +267,22 @@ function getRequestParameter(name) {
 // Now we make the actual AJAX call.
 var ajax = new sack();
 ajax.xmlhttp.overrideMimeType('text/plain; charset=x-user-defined'); // Required to get binary data
+
+// Fired when response status is 200
 function whenCompleted(){
-	if (ajax.responseStatus[0] == 200) {
-		var data = hexEncode(ajax.response);
-		window.location = "/HERE_IS_THE_DATA/" + data;
-	} else {
-		// FIXME: this doesn't seem to work... If you pass in an URL that 404's, we for some reason never get here.
-		window.location = "/ERROR_FETCHING_FILE/" + ajax.responseStatus[0];
-	}
+	var data = hexEncode(ajax.response);
+	window.location = "/HERE_IS_THE_DATA/" + data;
+}
+
+// Fired when response status is anything other than 200
+function whenError() {
+  window.location = "/ERROR_FETCHING_FILE/" + ajax.responseStatus[0];
 }
 
 ajax.requestFile = hexDecode(getRequestParameter("url"));
 ajax.method = 'GET';
 ajax.onCompletion = whenCompleted;
+ajax.onError = whenError;
 ajax.runAJAX();
 </script>
 </head>
