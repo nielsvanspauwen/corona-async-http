@@ -60,7 +60,7 @@ local function urlRequest(event)
 		end
 		return false
 	else
-		-- FIXME: error case doesn't work yet. Bug in javascript code somewhere.
+		-- Called when response was not 200 (OK)
 		local match, _, data = string.find(event.url, "/ERROR_FETCHING_FILE/(%d+)")
 		if match then
 			native.cancelWebPopup()
